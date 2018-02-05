@@ -30,8 +30,9 @@ preferences {
 	}
 	section("Turn on a light...") {
 		input "theswitch", "capability.switch", multiple: true
+        input "onTime", "number", title: "For minutes", defaultValue: "10", required: true  
 	}
-	section ("Sunrise offset (optional)...") {
+    	section ("Sunrise offset (optional)...") {
 		input "sunriseOffsetValue", "text", title: "HH:MM", required: false
 		input "sunriseOffsetDir", "enum", title: "Before or After", required: false, options: ["Before","After"]
 	}
@@ -80,54 +81,15 @@ def motionActiveHandler(evt) {
     def riseTimeNext = riseTime.next()
     def setTimeNext = setTime.next()
     
+    log.debug "onTime: $onTime"
+    def int duration = 60*onTime
     
-    log.debug "riseTimeNext: $riseTimeNext"
-	log.debug "setTimeNext: $setTimeNext"
-	log.debug "riseTime: $riseTime"
-	log.debug "setTime: $setTime"
-    log.debug "now: $now"
-    
-    log.debug "nowTime: $nowTime"
-    
-	log.info "state.riseTime:  $state.riseTime"
-    log.info "state.setTime:  $state.setTime"
-    
-    if(setTime.after(now)) {
-        log.debug "setTime.after(now)"
-    }
-    
-    if(setTime.before(now)) {
-        log.debug "setTime.before(now)"
-    }
-    
-    if(riseTime.after(now)) {
-        log.debug "riseTime.after(now)"
-    }
-
-    if(riseTime.before(now)) {
-        log.debug "riseTime.before(now)"
-    }
-    
-    if(now.after(setTime)) {
-        log.debug "now.after(setTime)"
-    }
-    
-    if(now.before(setTime)) {
-        log.debug "now.before(setTime)"
-    }
-    
-    if(now.after(riseTime)) {
-        log.debug "now.after(riseTime)"
-    }
-
-    if(now.before(riseTime)) {
-        log.debug "now.before(riseTime)"
-    }
+    log.debug "duration: $duration"
     
     if( now.after(setTime) || now.before(riseTime) ) {
         log.debug "Turn Light on"
         theswitch.on()
-        runIn( 60*10, switchOffHandler )
+        runIn( 60*onTime, switchOffHandler )
     }
     else {
         log.debug "No need to turn on Light"    
